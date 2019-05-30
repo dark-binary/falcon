@@ -4,6 +4,8 @@
 
 BLE stands for "Bluetooth Low Energy". BLE  is a variation of the Bluetooth wireless standard designed for low power consumption. This was developed for applications that work with low power devices and have to contend with weak signals such as fitness devices, proximity sensors, bulbs and locks.
 
+
+
 **Why does BLE need Penetration testing?**
 
 "With low power, comes low security". These devices interact with humans every single day with least security embedded on it. If and when an attacker compromises any of these devices, it could not just result in data theft but also has a physical impact to a user. This brings out the need to assess  every device.  
@@ -26,11 +28,15 @@ Following are the list of attacks that Falcon does,
 6. BLE Jammer 2        - With more BLE adapters to act as beacons, it is possible to crash the 3 advertisement channels.
 
 
+
+
 **Required hardwares:**
 
 BLE adapters
 Ubertooth - Bluetooth sniffer
 A BLE device to perform the testing
+
+
 
 
 **Installation:**
@@ -39,6 +45,8 @@ Falcon needs a few pre-requisites to be installed to make the tool become fully 
 Run the install.sh file from the terminal,
 
 $ bash install.sh
+
+
 
 **Usage:**
 
