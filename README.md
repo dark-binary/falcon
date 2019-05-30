@@ -33,7 +33,7 @@ Following are the list of attacks that Falcon does,
 <br/>
 
 
-**Required hardwares:**
+**Required hardwares:** <br/>
 **-------------------**
 
 BLE adapters
@@ -44,7 +44,7 @@ A BLE device to perform the testing
 <br/>
 
 
-**Installation:**
+**Installation:** <br/>
 **-------------**
 
 Falcon needs a few pre-requisites to be installed to make the tool become fully functional.
@@ -57,7 +57,7 @@ $ bash install.sh
 <br/>
 
 
-**Usage:**
+**Usage:** <br/>
 **------**
 
 Make sure the BLE adapter and Ubertooth are connected to the system.
