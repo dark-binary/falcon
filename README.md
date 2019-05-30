@@ -34,7 +34,7 @@ Following are the list of attacks that Falcon does,
 
 
 **Required hardwares:** <br/>
-**-----------------------------**
+**--------------------------------**
 
 BLE adapters
 Ubertooth - Bluetooth sniffer
@@ -58,7 +58,7 @@ $ bash install.sh
 
 
 **Usage:** <br/>
-**---------**
+**-----------**
 
 Make sure the BLE adapter and Ubertooth are connected to the system.
 Run the falcon.sh file from the terminal,
