@@ -40,9 +40,9 @@ Following are the list of attacks that Falcon does,
 **Required hardwares:** <br/>
 **--------------------------------**
 
-BLE adapters
-Ubertooth - Bluetooth sniffer
-A BLE device to perform the testing
+BLE adapters  <br/>
+Ubertooth - Bluetooth sniffer <br/>
+A BLE device to perform the testing <br/>
 
 <br/>
 <br/>
