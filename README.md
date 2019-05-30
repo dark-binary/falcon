@@ -4,6 +4,8 @@
 
 BLE stands for "Bluetooth Low Energy". BLE  is a variation of the Bluetooth wireless standard designed for low power consumption. This was developed for applications that work with low power devices and have to contend with weak signals such as fitness devices, proximity sensors, bulbs and locks.
 
+{empty} +
+{empty} +
 
 
 **Why does BLE need Penetration testing?**
