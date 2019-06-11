@@ -48,20 +48,21 @@ mkdir txtfiles
 
 #Initialising values for scoring system
 
-att1_sev='none'
-att1_comp='none'
+
+att1_sev=0
+att1_comp=0
   
-att2_sev='none'
-att2_comp='high'
+att2_sev=0
+att2_comp=5
 
-att3_sev='none'
-att3_comp='low'
+att3_sev=0
+att3_comp=1
 
-att4_sev='none'
-att4_comp='high'
+att4_sev=0
+att4_comp=5
 
-att5_sev='none'
-att5_comp='low'
+att5_sev=0
+att5_comp=1
 
 
 function ble_scan()
@@ -276,12 +277,12 @@ then
     echo -e "The write handles are,\n"
     cat write_handles.txt
     echo -e "\n\n"
-    att1_sev='low'
+    att1_sev=2
   else
     echo -e "\n\n"
     echo -e "No write handles found!!\n"
     echo -e "\n\n"
-    #att1_sev='none'
+    att1_sev=5
   fi
 
   echo -e "${w}"
@@ -347,13 +348,13 @@ then
       echo -e "\n\nThe sniffed values are, \n"
       grep '^    Value' dummy.txt
       echo -e "\n\n"
-      att2_sev='medium'
+      att2_sev=1
     
     else
       echo -e "\n\n"
       echo -e "No values found!!\n"
       echo -e "\n\n"
-      #att2_sev='none'
+      att2_sev=5
     fi
 
     
@@ -422,12 +423,12 @@ then
     echo -e "\n\n"
     echo -e "Error in writing the characteristic value, Try again :("
     echo -e "\n\n"
-    #att3_sev='none'    
+    att3_sev=5    
   else
     echo -e "\n\n"
     echo -e "Characteristic value was written successfully"
     echo -e "\n\n"
-    att3_sev='high'
+    att3_sev=0
   fi
 
   echo -e "${w}"
@@ -580,10 +581,9 @@ then
   
   if [ -z "$att4_mitm_check" ]
   then
-    #att4_sev='none'
-    true    
+    att4_sev=5
   else
-    att4_sev='medium'
+    att4_sev=1
   fi
 
 
@@ -615,12 +615,12 @@ then
     echo -e "\n\n"
     echo -e "${g}Replay attack was NOT successful.${w}"
     echo -e "\n\n"
-    #att4_sev='none'    
+    att4_sev=5    
   else
     echo -e "\n\n"
     echo -e "${g}Replay attack was successful !!${w}"
     echo -e "\n\n"
-    att4_sev='high'
+    att4_sev=0
   fi
 
 
@@ -674,9 +674,10 @@ then
   if [ $runtime -lt 10 ]
   then
     echo "The DoS attack was terminated in less than 10 seconds"
+    att5_sev=5
   else
     echo "The DoS attack was successful (more than 10 seconds)"
-    att5_sev='medium'
+    att5_sev=1
   fi
 
   #clean the scan files
@@ -731,18 +732,18 @@ then
 
 #Security score
 
-#Severity:
-#0. None    -  No loss
-#1. Low     -  If recon info on the device is accessible it is of low severity.
-#2. Medium  -  If a sensitive information is accessible it is of medium severity.
-#3. High    -  If the whole device could be controlled by the attacker it is of high severity.
+#Severity (max 5):
+#0. None    -  No loss											#5
+#1. Low     -  If recon info on the device is accessible it is of low severity.				#2
+#2. Medium  -  If a sensitive information is accessible it is of medium severity.			#1
+#3. High    -  If the whole device could be controlled by the attacker it is of high severity.		#0
 
 
-#Complexity:
-#0. None    -  None required
-#1. Low     -  If the attacker needs some pre requisite data or information to perform the attack.
-#2. Medium  -  If the attacker requires user's interaction to perform the attack.
-#3. High    -  If the attacker requires some specialized hardware to perform the attack (and the user's interaction).
+#Complexity (max 5):
+#0. None    -  None required										#0
+#1. Low     -  If the attacker needs some pre requisite data or information to perform the attack.	#1
+#2. Medium  -  If the attacker requires user's interaction to perform the attack.			#2
+#3. High    -  If the attacker requires some specialized hardware to perform the attack.		#5
 
 
 elif [ $var -eq 8 ]
@@ -765,44 +766,67 @@ then
 
   echo -e "\n1. User Authentication :"
   echo -e "------------------------"
-  read -p "Does the device have an Authentication? " q1
-  read -p "Is the password strong enough? " q2
-  read -p "Is the device brute force protected? " q3
-  read -p "Does the device have multi-factor authentication? " q4
+  read -p "Does the device have an Authentication? " q1							#5
+  if [[ $q1 == 'y' ]]; then q1=5; else q1=0; fi
+  read -p "Is the password strong enough? " q2								#2
+  if [[ $q2 == 'y' ]]; then q2=2; else q2=0; fi							
+  read -p "Is the device brute force protected? " q3							#2
+  if [[ $q3 == 'y' ]]; then q3=2; else q3=0; fi
+  read -p "Does the device have multi-factor authentication? " q4					#1
+  if [[ $q4 == 'y' ]]; then q4=1; else q4=0; fi
 
   echo -e "\n2. User Authorization :"
   echo -e "-----------------------"
-  read -p "Does the device have access control mechanisms? " q5
-  read -p "Does it have white listing for input requests? " q6
+  read -p "Does the device have access control mechanisms? " q5						#2
+  if [[ $q5 == 'y' ]]; then q5=2; else q5=0; fi
+  read -p "Does it have white listing for input requests? " q6						#2
+  if [[ $q6 == 'y' ]]; then q6=2; else q6=0; fi
 
   echo -e "\n3. Confidentiality :"
   echo -e "--------------------" 
-  read -p "Is the data stored on the device encrypted? " q7
-  read -p "Is the communication encrypted / safe? " q8
+  read -p "Is the data stored on the device encrypted? " q7						#5
+  if [[ $q7 == 'y' ]]; then q7=5; else q7=0; fi
+  read -p "Is the communication encrypted / safe? " q8							#2
+  if [[ $q8 == 'y' ]]; then q8=2; else q8=0; fi
 
   echo -e "\n4. Integrity :"
   echo -e "--------------"  
-  read -p "Are there any error checking methods? " q9
-  read -p "Are there any validation methods (Mutual authentication)? " q10
+  read -p "Are there any error checking methods? " q9							#1
+  if [[ $q9 == 'y' ]]; then q9=1; else q9=0; fi
+  read -p "Are there any validation methods (Mutual authentication)? " q10				#5
+  if [[ $q10 == 'y' ]]; then q10=5; else q10=0; fi
 
   echo -e "\n5. Availability :"
   echo -e "-----------------"
-  read -p "Is it resistant to logical tampering? " q11
-  read -p "Is it resistant to physical tampering? " q12
+  read -p "Is the device resistant to logical tampering? " q11						#2
+  if [[ $q11 == 'y' ]]; then q11=2; else q11=0; fi
+  read -p "Is the resistant to physical tampering? " q12						#2
+  if [[ $q12 == 'y' ]]; then q12=2; else q12=0; fi
 
   echo -e "\n6. Resilience :"
   echo -e "---------------"
-  read -p "Is there any information leakage through non-administrative access? " q13
-  read -p "Can the device recover from a DoS attack automatically? " q14
+  read -p "Is the device resistant to information leakage (through non-administrative access)? " q13	#2
+  if [[ $q13 == 'y' ]]; then q13=2; else q13=0; fi
+  read -p "Can the device recover from a DoS attack automatically? " q14				#5
+  if [[ $q14 == 'y' ]]; then q14=5; else q14=0; fi
 
   echo -e "\n7. Accountability :"
   echo -e "-------------------"
-  read -p "Is there any logging of data? " q15
+  read -p "Is there any logging of data? " q15								#2
+  if [[ $q15 == 'y' ]]; then q15=2; else q15=0; fi
 
   echo -e "\n8. Non - repudiation :"
   echo -e "----------------------"
-  read -p "Does the device have digital signature verification (replay attack)? " q16
+  read -p "Does the device have digital signature verification (replay attack)? " q16			#2
+  if [[ $q16 == 'y' ]]; then q16=2; else q16=0; fi
 
+
+  sum=$(($att1_sev+$att1_comp+$att2_sev+$att2_comp+$att3_sev+$att3_comp+$att4_sev+$att4_comp+$att5_sev+$att5_comp+$q1+$q2+$q3+$q4+$q5+$q6+$q7+$q8+$q9+$q10+$q11+$q12+$q13+$q14+$q15+$q16))
+ 
+  score=$((($sum/92)*10))
+  echo -e "\n\n"
+  echo -e "The security score of the device is $score out of 10!!"
+  echo -e "\n\n"
 
 
 
