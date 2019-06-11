@@ -823,7 +823,10 @@ then
 
   sum=$(($att1_sev+$att1_comp+$att2_sev+$att2_comp+$att3_sev+$att3_comp+$att4_sev+$att4_comp+$att5_sev+$att5_comp+$q1+$q2+$q3+$q4+$q5+$q6+$q7+$q8+$q9+$q10+$q11+$q12+$q13+$q14+$q15+$q16))
  
-  score=$((($sum/92)*10))
+  score=$(awk -v sum=$sum 'BEGIN { print(sum/79)*10 }')
+  score=$(printf "%0.2f\n" $score)
+
+  echo -e "\n Sum = $sum"
   echo -e "\n\n"
   echo -e "The security score of the device is $score out of 10!!"
   echo -e "\n\n"
