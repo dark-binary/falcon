@@ -826,7 +826,7 @@ then
   score=$(awk -v sum=$sum 'BEGIN { print(sum/79)*10 }')
   score=$(printf "%0.2f\n" $score)
 
-  echo -e "\n Sum = $sum"
+  #echo -e "\n Sum = $sum"
   echo -e "\n\n"
   echo -e "The security score of the device is $score out of 10!!"
   echo -e "\n\n"
