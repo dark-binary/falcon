@@ -51,7 +51,7 @@ mkdir txtfiles
 
 att1_sev=0
 att1_comp=0
-  
+
 att2_sev=0
 att2_comp=5
 
@@ -77,7 +77,7 @@ sudo hciconfig hci0 reset
 sudo hciconfig hci0 down
 sudo hciconfig hci0 up
 sleep 1
-sudo hcitool lescan > tempscan.txt & sleep 2 
+sudo hcitool lescan > tempscan.txt & sleep 2
 #2> /dev/null
 echo -e "\n\n"
 echo -e "Scanning..."
@@ -291,7 +291,7 @@ then
   fi
 
   echo -e "${w}"
-  
+
 
   cd ..
 
@@ -354,7 +354,7 @@ then
       grep '^    Value' dummy.txt
       echo -e "\n\n"
       att2_sev=1
-    
+
     else
       echo -e "\n\n"
       echo -e "No values found!!\n"
@@ -362,7 +362,7 @@ then
       att2_sev=5
     fi
 
-    
+
     echo -e "${w}"
     cd ..
 
@@ -420,15 +420,15 @@ then
   sudo gatttool -i hci0 -b $att3_addr --char-write-req -a $att3_handle -n $att3_value >> att3_check_file.txt
   sudo gatttool -i hci0 -b $att3_addr --char-write-req -a $att3_handle -n $att3_value >> att3_check_file.txt
   sudo gatttool -i hci0 -b $att3_addr --char-write-req -a $att3_handle -n $att3_value >> att3_check_file.txt
-  
+
   att3_check=$(cat att3_check_file.txt | grep "successfully")
-  
+
   if [ -z "$att3_check" ]
   then
     echo -e "\n\n"
     echo -e "Error in writing the characteristic value, Try again :("
     echo -e "\n\n"
-    att3_sev=5    
+    att3_sev=5
   else
     echo -e "\n\n"
     echo -e "Characteristic value was written successfully"
@@ -573,11 +573,11 @@ then
   sudo ./mac_spoof -a devices/$spoof_adv -s devices/$spoof_srv
 
   clear
-  
+
   cd dump
   att4_spoof_check=$(ls | grep $spoof_addr.log)
-  cd .. 
-  
+  cd ..
+
   if [ -z "$att4_spoof_check" ]
   then
     att4_sev=5
@@ -590,7 +590,7 @@ then
     echo -e "The dump file of the packets is stored in node_modules/gattacker/dump/"
     echo -e "\n\n"
   fi
-   
+
   cd devices/
   rm -rf *
   cd ..
@@ -748,8 +748,8 @@ then
 
   cd dump
   att5_mitm_check=$(ls | grep $replay_addr.log)
-  cd .. 
-  
+  cd ..
+
   if [ -z "$att5_mitm_check" ]
   then
     att5_sev=5
@@ -777,7 +777,7 @@ then
   sudo node replay.js -i dump/$replay_addr.log -p $replay_addr -s devices/$replay_srv |& tee replay_output.txt
 
   echo -e "\n\n"
-  
+
   att5_replay_check=$(cat replay_output.txt | grep 'WRITE REQ:')
 
 
@@ -787,7 +787,7 @@ then
     echo -e "${g}Replay attack was NOT successful.${w}"
     sudo rm replay_output.txt
     echo -e "\n\n"
-    att5_sev=5    
+    att5_sev=5
   else
     echo -e "\n\n"
     echo -e "${g}Replay attack was successful !!${w}"
@@ -797,7 +797,7 @@ then
   fi
 
 
-  
+
 
   cd devices/
   rm -rf *
@@ -843,7 +843,7 @@ then
 
   runtime=$((end-start))
   echo -e "\n"
-  
+
   if [ $runtime -lt 10 ]
   then
     echo "The DoS attack was terminated in less than 10 seconds"
@@ -943,7 +943,7 @@ echo -e "	|	Spoofing	       |	$att4_sev		|	$att4_comp	    |"
   read -p "Does the device have an Authentication? " q1							#5
   if [[ $q1 == 'y' ]]; then q1=5; else q1=0; fi
   read -p "Is the password strong enough? " q2								#2
-  if [[ $q2 == 'y' ]]; then q2=2; else q2=0; fi							
+  if [[ $q2 == 'y' ]]; then q2=2; else q2=0; fi
   read -p "Is the device brute force protected? " q3							#2
   if [[ $q3 == 'y' ]]; then q3=2; else q3=0; fi
   read -p "Does the device have multi-factor authentication? " q4					#1
@@ -957,14 +957,14 @@ echo -e "	|	Spoofing	       |	$att4_sev		|	$att4_comp	    |"
   if [[ $q6 == 'y' ]]; then q6=2; else q6=0; fi
 
   echo -e "\n3. Confidentiality :"
-  echo -e "--------------------" 
+  echo -e "--------------------"
   read -p "Is the data stored on the device encrypted? " q7						#5
   if [[ $q7 == 'y' ]]; then q7=5; else q7=0; fi
   read -p "Is the communication encrypted / safe? " q8							#2
   if [[ $q8 == 'y' ]]; then q8=2; else q8=0; fi
 
   echo -e "\n4. Integrity :"
-  echo -e "--------------"  
+  echo -e "--------------"
   read -p "Are there any error checking methods? " q9							#1
   if [[ $q9 == 'y' ]]; then q9=1; else q9=0; fi
   read -p "Are there any validation methods (Mutual authentication)? " q10				#5
@@ -996,7 +996,7 @@ echo -e "	|	Spoofing	       |	$att4_sev		|	$att4_comp	    |"
 
 
   sum=$(($att1_sev+$att1_comp+$att2_sev+$att2_comp+$att3_sev+$att3_comp+$att4_sev+$att4_comp+$att5_sev+$att5_comp+$att6_sev+$att6_comp+$q1+$q2+$q3+$q4+$q5+$q6+$q7+$q8+$q9+$q10+$q11+$q12+$q13+$q14+$q15+$q16))
- 
+
   score=$(awk -v sum=$sum 'BEGIN { print(sum/85)*10 }')
   score=$(printf "%0.2f\n" $score)
 
@@ -1004,7 +1004,7 @@ echo -e "	|	Spoofing	       |	$att4_sev		|	$att4_comp	    |"
   echo -e "\n\n"
   echo -e "The security score of the device is $score out of 10!!"
   echo -e "\n\n"
-  
+
 
 
 
@@ -1026,7 +1026,7 @@ then
 
 else
   echo -e "\n\n"
-  echo -e "Please enter a valid input [ 1 - 9 ]"
+  echo -e "Please enter a valid input [ 0 - 9 ]"
   echo -e "\n\n"
 fi
 
